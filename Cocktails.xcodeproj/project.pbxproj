@@ -14,6 +14,7 @@
 		45CC5BB22A9EE081007A3C70 /* CocktailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CC5BB12A9EE081007A3C70 /* CocktailsTests.swift */; };
 		45CC5BBC2A9EE081007A3C70 /* CocktailsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CC5BBB2A9EE081007A3C70 /* CocktailsUITests.swift */; };
 		45CC5BBE2A9EE081007A3C70 /* CocktailsUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CC5BBD2A9EE081007A3C70 /* CocktailsUITestsLaunchTests.swift */; };
+		45CC5BCD2A9EE225007A3C70 /* cocktail_recipes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 45CC5BCC2A9EE225007A3C70 /* cocktail_recipes.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		45CC5BB72A9EE081007A3C70 /* CocktailsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CocktailsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		45CC5BBB2A9EE081007A3C70 /* CocktailsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CocktailsUITests.swift; sourceTree = "<group>"; };
 		45CC5BBD2A9EE081007A3C70 /* CocktailsUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CocktailsUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		45CC5BCC2A9EE225007A3C70 /* cocktail_recipes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = cocktail_recipes.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 			children = (
 				45CC5BA02A9EE080007A3C70 /* CocktailsApp.swift */,
 				45CC5BA22A9EE080007A3C70 /* ContentView.swift */,
+				45CC5BCC2A9EE225007A3C70 /* cocktail_recipes.txt */,
 				45CC5BA42A9EE081007A3C70 /* Assets.xcassets */,
 				45CC5BA62A9EE081007A3C70 /* Preview Content */,
 			);
@@ -232,6 +235,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				45CC5BA82A9EE081007A3C70 /* Preview Assets.xcassets in Resources */,
+				45CC5BCD2A9EE225007A3C70 /* cocktail_recipes.txt in Resources */,
 				45CC5BA52A9EE081007A3C70 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

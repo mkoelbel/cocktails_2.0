@@ -1,0 +1,31 @@
+COCKTAIL:
+Old Fashioned
+
+ingredients:
+2 oz whiskey
+2 tsp sugar
+2 dashes angostura bitters
+1 tsp water
+orange peel
+maraschino cherry
+
+instructions:
+1. In a rocks glass, combine sugar, bitters, and water. Muddle until sugar is nearly dissolved.
+2. Add ice cubes and whiskey. Stir until well chilled.
+3. Garnish with orange peel and cherry.
+
+
+COCKTAIL:
+Manhattan
+
+ingredients:
+2 oz whiskey
+1 oz sweet vermouth
+2 dashes angostura bitters
+maraschino cherry
+
+instructions:
+1. Chill a coupe glass.
+2. In a mixing glass, combine ice, whiskey, sweet vermouth, and bitters. Stir until well chilled.
+3. Strain into coupe glass.
+4. Garnish with cherry.
