@@ -14,6 +14,10 @@ instructions:
 2. Add ice cubes and whiskey. Stir until well chilled.
 3. Garnish with orange peel and cherry.
 
+tags:
+Hors d'oeuvres
+Cozy
+
 
 COCKTAIL:
 Manhattan
@@ -29,3 +33,29 @@ instructions:
 2. In a mixing glass, combine ice, whiskey, sweet vermouth, and bitters. Stir until well chilled.
 3. Strain into coupe glass.
 4. Garnish with cherry.
+
+tags:
+Hors d'oeuvres
+Cozy
+
+
+COCKTAIL:
+Mojito
+
+ingredients:
+2 oz white rum
+1 oz lime juice
+1/2 oz simple syrup
+5 mint leaves
+club soda
+
+instructions:
+1. In a shaker, combine mint, sugar, and lime juice. Muddle.
+2. Add rum and ice. Shake.
+3. Strain into highball glass with ice.
+4. Top with club soda.
+4. Garnish with lime wedge.
+
+tags:
+Hors d'oeuvres
+Refreshing
