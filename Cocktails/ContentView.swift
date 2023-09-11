@@ -8,27 +8,34 @@
 import SwiftUI
 
 struct ContentView: View {
+    // Variables which don't change during app session
     var fileContents: String = ""
     var recipes: [String] = []
     var cocktailNames: [String] = []
     var cocktailTagsDict: [String: [String]] = [:]
+    var sortedTags: [String] = []
     
+    // Variables which change during app session
     @State private var selectedCocktail: String = ""
     @State private var selectedTag: String = ""
-    @State private var selectedIngredients: String = ""
-    @State private var selectedInstructions: String = ""
+    @State private var selectedIngredients: [String] = []
+    @State private var selectedInstructions: [String] = []
+    @State private var scalable: Bool = false
     
-    let liqueursList = ["Gin", "Prosecco", "Tequila", "Vodka", "Whiskey"]
+    let liquorsList = ["Gin", "Prosecco", "Rum", "Tequila", "Vodka", "Whiskey"]
     
+    // Do upon opening app
     init() {
         fileContents = getTextFileContents("cocktail_recipes")!
         recipes = extractRecipes(fileContents)
         cocktailNames = compileCocktailNames(recipes)
         cocktailTagsDict = buildTagsDict(recipes)
+        sortedTags = sortTags(cocktailTagsDict)
     }
     
     var body: some View {
         VStack {
+            // Input for cocktail choices
             Picker("Choices", selection: $selectedCocktail) {
                 ForEach(cocktailNames, id: \.self) { cocktail in
                     Text(cocktail)
@@ -38,8 +45,9 @@ struct ContentView: View {
             .pickerStyle(.menu)
             .padding()
             
-            Picker("Tags", selection: $selectedTag) {
-                ForEach(Array(cocktailTagsDict.keys), id: \.self) { tag in
+            // Input for tag choices
+            Picker("Descriptions", selection: $selectedTag) {
+                ForEach(sortedTags, id: \.self) { tag in
                     Text(tag)
                 }
             }
@@ -52,16 +60,18 @@ struct ContentView: View {
             
             Spacer()
             
-            // if user has selected a cocktail, show recipe
+            // If user has selected a cocktail, show recipe
             if !selectedCocktail.isEmpty {
                 Text("Ingredients:\n\n")
                     .font(.title2)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 50)
                 
-                Text(selectedIngredients)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 50)
+                ForEach(selectedIngredients, id: \.self) { ingredient in
+                    Text(ingredient)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 50)
                 
                 Text("\n\n")
                 
@@ -70,26 +80,30 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 50)
                 
-                Text(selectedInstructions)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 50)
+                ForEach(selectedInstructions, id: \.self) { instruction in
+                    Text(instruction)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 50)
             }
             
             Spacer()
             
-        }.onChange(of: selectedCocktail) { newSelectedCocktail in
+        }
+        // Do upon selecting a new cocktail
+        .onChange(of: selectedCocktail) { newSelectedCocktail in
             let recipe = extractSingleRecipe(recipes, newSelectedCocktail)
             selectedIngredients = extractIngredients(recipe)
             selectedInstructions = extractInstructions(recipe)
         }
     }
     
-    // read file contents of a text file and return contents as a string
+    // Read file contents of a text file and return contents as a string
     func getTextFileContents(_ fileName: String) -> String? {
-        // get URL of file in the app's bundle
+        // Get URL of file in the app's bundle
         if let fileURL = Bundle.main.url(forResource: fileName, withExtension: "txt") {
             do {
-                // read file contents into a string
+                // Read file contents into a string
                 let fileContents = try String(contentsOf: fileURL, encoding: .utf8)
                 return fileContents
             } catch {
@@ -100,19 +114,19 @@ struct ContentView: View {
         return nil // file not found
     }
     
-    // given the contents of a text file as a string, split the text into separate cocktail recipes, and return them as a list of strings
+    // Given the contents of a text file as a string, split the text into separate cocktail recipes, and return them as a list of strings
     func extractRecipes(_ text: String) -> [String] {
         return text.components(separatedBy: "COCKTAIL:\n").filter { !$0.isEmpty }
     }
     
-    // return the recipe for a specified cocktail from a list of recipes
+    // Return the recipe for a specified cocktail from a list of recipes
     func extractSingleRecipe(_ recipes: [String], _ cocktail: String) -> String {
         var targetRecipe: String = ""
         for recipe in recipes {
             let lines = recipe.components(separatedBy: "\n")
             if lines.first == cocktail {
                 targetRecipe = recipe
-                break // if we've found the recipe, then stop looping
+                break // If we've found the recipe, then stop looping
             }
         }
         return targetRecipe
@@ -123,7 +137,7 @@ struct ContentView: View {
         return lines.first!
     }
     
-    // return a list of cocktail names given a list of recipes
+    // Return a list of cocktail names given a list of recipes
     func compileCocktailNames(_ recipes: [String]) -> [String] {
         var cocktailNames: [String] = []
         for recipe in recipes {
@@ -132,7 +146,7 @@ struct ContentView: View {
         return cocktailNames
     }
     
-    // return a specified section of a recipe
+    // Return a specified section of a recipe
     func extractRecipeSection(_ recipe: String, _ sectionName: String) -> String {
         var targetSection: String = ""
         let recipeSections = recipe.components(separatedBy: "\n\n") // e.g. ingredients, instructions, etc
@@ -146,44 +160,78 @@ struct ContentView: View {
         return targetSection
     }
     
-    func extractIngredients(_ recipe: String) -> String {
-        return extractRecipeSection(recipe, "ingredients:")
+    // Return a list of ingredients for a specified recipe
+    func extractIngredients(_ recipe: String) -> [String] {
+        let ingredients = extractRecipeSection(recipe, "ingredients:")
+            .components(separatedBy: "\n")
+            .filter { !$0.isEmpty }
+        
+        return ingredients
     }
     
-    func extractInstructions(_ recipe: String) -> String {
-        return extractRecipeSection(recipe, "instructions:")
+    // Return a list of instructions for a specified recipe
+    func extractInstructions(_ recipe: String) -> [String] {
+        let instructions = extractRecipeSection(recipe, "instructions:")
+            .components(separatedBy: "\n")
+            .filter { !$0.isEmpty }
+        
+        return instructions
     }
     
-    // build a cocktails dictionary (tag: [cocktails list]) given a list of cocktail recipes
+    // Return a list of tags for a specified recipe
+    func extractTags(_ recipe: String) -> [String] {
+        let tags = extractRecipeSection(recipe, "tags:")
+            .components(separatedBy: "\n")
+            .filter { !$0.isEmpty }
+        
+        return tags
+    }
+    
+    // Return a list of liquors that appear in a specified ingredients list
+    func extractLiquors(_ ingredients: [String]) -> [String] {
+        var liquorsInRecipe: [String] = []
+        for ingredient in ingredients {
+            for liquor in liquorsList {
+                if ingredient.lowercased().range(of: liquor.lowercased()) != nil {
+                    liquorsInRecipe.append(liquor)
+                } else {
+                }
+            }
+        }
+        return liquorsInRecipe
+    }
+    
+    // Build a cocktails dictionary (tag: [cocktails list]) given a list of cocktail recipes
     func buildTagsDict(_ recipes: [String]) -> [String: [String]] {
         var tagsDict: [String: [String]] = [:]
         for recipe in recipes {
             let currentCocktail = extractCocktailName(recipe)
-            let tags = extractRecipeSection(recipe, "tags:")
-                .components(separatedBy: "\n")
-                .filter { !$0.isEmpty }
+            let tags = extractTags(recipe)
             let ingredients = extractIngredients(recipe)
-                .components(separatedBy: "\n")
-            print("INGREDIENTS:", ingredients)
-            let liqueurs = extractLiqueurs(ingredients)
-            print("LIQUEURS:",liqueurs)
-            let liqueursAndTags = liqueurs + tags
-            print("LIQUEURS+TAGS:", liqueursAndTags)
-            for tag in tags {
+            let liquors = extractLiquors(ingredients)
+            let allTags = tags + liquors
+            for tag in allTags {
                 tagsDict[tag, default: []].append(currentCocktail)
             }
         }
         return tagsDict
     }
     
-    func extractLiqueurs(_ ingredients: [String]) -> [String] {
-        var liqueurs: [String] = []
-        for ingredient in ingredients {
-            if liqueursList.contains(ingredient) {
-                liqueurs.append(ingredient)
+    // Return a sorted list of cocktail tags, given the cocktail dictionary. Place liquors before other tags, and sort alphabetically within liquors and other tags
+    func sortTags(_ dict: [String: [String]]) -> [String] {
+        let keys = dict.keys
+        var liquorTags: [String] = []
+        var otherTags: [String] = []
+        var sortedTags: [String] = []
+        for key in keys {
+            if liquorsList.contains(key) {
+                liquorTags.append(key)
+            } else {
+                otherTags.append(key)
             }
         }
-        return liqueurs
+        sortedTags = liquorTags.sorted() + otherTags.sorted()
+        return sortedTags
     }
 }
 
@@ -193,7 +241,10 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-// to do:
-// - finish implementing thing where we use a function to grab the liqueurs, rather than specifying them as tags
-//   - fix extractLiqueur funtion, to use regular expressions. it doesn't work at all right now
-//   - modify buildDict function to sort the tags nicely
+// TO DO
+// - split ingredients into qty, unit, ingr
+// - add input (for SOME drinks) to make a larger batch (quantity input)
+// - multiply ingredients qty by input qty
+
+// - add labels for inputs ("Choose a cocktail")
+// - add input for potential cocktails, if user picks a tag

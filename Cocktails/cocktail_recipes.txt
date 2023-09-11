@@ -18,6 +18,9 @@ tags:
 Hors d'oeuvres
 Cozy
 
+scalable:
+F
+
 
 COCKTAIL:
 Manhattan
@@ -37,6 +40,9 @@ instructions:
 tags:
 Hors d'oeuvres
 Cozy
+
+scalable:
+F
 
 
 COCKTAIL:
@@ -59,3 +65,6 @@ instructions:
 tags:
 Hors d'oeuvres
 Refreshing
+
+scalable:
+T
