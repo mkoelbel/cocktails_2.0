@@ -18,8 +18,10 @@ struct ContentView: View {
     // Variables which change during app session
     @State private var selectedCocktail: String = ""
     @State private var selectedTag: String = ""
-    @State private var selectedIngredients: [String] = []
-    @State private var selectedInstructions: [String] = []
+    @State private var selectedPotentialCocktail: String = ""
+    @State private var cocktailName: String = ""
+    @State private var ingredients: [String] = []
+    @State private var instructions: [String] = []
     @State private var scalable: Bool = false
     
     let liquorsList = ["Gin", "Prosecco", "Rum", "Tequila", "Vodka", "Whiskey"]
@@ -35,56 +37,81 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            // Input for cocktail choices
-            Picker("Choices", selection: $selectedCocktail) {
-                ForEach(cocktailNames, id: \.self) { cocktail in
-                    Text(cocktail)
+            
+            // Cocktails picker
+            HStack(spacing: -2) {
+                Text("Choose a Cocktail")
+                
+                Picker("Cocktails", selection: $selectedCocktail) {
+                    ForEach(cocktailNames, id: \.self) { cocktail in
+                        Text(cocktail)
+                    }
                 }
             }
-            .font(.largeTitle)
-            .pickerStyle(.menu)
-            .padding()
+            .padding(.top, 20)
             
-            // Input for tag choices
-            Picker("Descriptions", selection: $selectedTag) {
-                ForEach(sortedTags, id: \.self) { tag in
-                    Text(tag)
+            Text("or")
+                .padding(.bottom, 6)
+            
+            // Descriptions picker
+            HStack {
+                VStack(spacing: 0) {
+                    Text("Choose a Description")
+                    
+                    Picker("Descriptions", selection: $selectedTag) {
+                        ForEach(sortedTags, id: \.self) { tag in
+                            Text(tag)
+                        }
+                    }
+                }
+                .padding(.trailing, 10)
+                
+                // Potentional Cocktails picker
+                VStack(spacing: 0) {
+                    // If user has selected a tag, show picker
+                    if !selectedTag.isEmpty {
+                        Text("Potential Cocktails")
+                        
+                        Picker("Potential Cocktails", selection: $selectedPotentialCocktail) {
+                            ForEach(cocktailTagsDict[selectedTag] ?? [], id: \.self) { cocktail in
+                                Text(cocktail)
+                            }
+                        }
+                    }
                 }
             }
-            .font(.largeTitle)
-            .pickerStyle(.menu)
-            .padding()
-            
-            Text(selectedCocktail)
-                .font(.title)
-            
-            Spacer()
             
             // If user has selected a cocktail, show recipe
-            if !selectedCocktail.isEmpty {
-                Text("Ingredients:\n\n")
+            if !cocktailName.isEmpty {
+                
+                Text(cocktailName)
+                    .font(.title)
+                    .padding([.top, .bottom], 16)
+                
+                Text("Ingredients:")
                     .font(.title2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 50)
+                    .padding([.leading, .trailing], 30)
+                    .padding(.bottom, 4)
                 
-                ForEach(selectedIngredients, id: \.self) { ingredient in
+                ForEach(ingredients, id: \.self) { ingredient in
                     Text(ingredient)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 50)
+                .padding([.leading, .trailing], 30)
                 
-                Text("\n\n")
-                
-                Text("Instructions:\n\n")
+                Text("Instructions:")
                     .font(.title2)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 50)
+                    .padding([.leading, .trailing], 30)
+                    .padding(.bottom, 4)
+                    .padding(.top, 20)
                 
-                ForEach(selectedInstructions, id: \.self) { instruction in
+                ForEach(instructions, id: \.self) { instruction in
                     Text(instruction)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 50)
+                .padding([.leading, .trailing], 30)
             }
             
             Spacer()
@@ -92,9 +119,10 @@ struct ContentView: View {
         }
         // Do upon selecting a new cocktail
         .onChange(of: selectedCocktail) { newSelectedCocktail in
-            let recipe = extractSingleRecipe(recipes, newSelectedCocktail)
-            selectedIngredients = extractIngredients(recipe)
-            selectedInstructions = extractInstructions(recipe)
+            updateDisplayForSelectedCocktail(newSelectedCocktail)
+        }
+        .onChange(of: selectedPotentialCocktail) { newSelectedCocktail in
+            updateDisplayForSelectedCocktail(newSelectedCocktail)
         }
     }
     
@@ -132,6 +160,7 @@ struct ContentView: View {
         return targetRecipe
     }
     
+    // Return a cocktail name given a recipe
     func extractCocktailName(_ recipe: String) -> String {
         let lines = recipe.components(separatedBy: "\n")
         return lines.first!
@@ -233,6 +262,14 @@ struct ContentView: View {
         sortedTags = liquorTags.sorted() + otherTags.sorted()
         return sortedTags
     }
+    
+    // Given a cocktail, update the necessary variables to display the new cocktail recipe in the app
+    func updateDisplayForSelectedCocktail(_ cocktail: String) {
+        let recipe = extractSingleRecipe(recipes, cocktail)
+        cocktailName = extractCocktailName(recipe)
+        ingredients = extractIngredients(recipe)
+        instructions = extractInstructions(recipe)
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
@@ -245,6 +282,3 @@ struct ContentView_Previews: PreviewProvider {
 // - split ingredients into qty, unit, ingr
 // - add input (for SOME drinks) to make a larger batch (quantity input)
 // - multiply ingredients qty by input qty
-
-// - add labels for inputs ("Choose a cocktail")
-// - add input for potential cocktails, if user picks a tag
