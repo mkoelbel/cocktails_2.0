@@ -139,8 +139,9 @@ struct ContentView: View {
         .onChange(of: selectedPotentialCocktail) { newSelectedCocktail in
             updateDisplayForSelectedCocktail(newSelectedCocktail)
         }
+        // Do upon selecting a Number of Servings
         .onChange(of: numServings) { newNumServings in
-            updateDisplayForNumServings(newNumServings)
+            updateDisplayForNumServings(cocktailName, newNumServings)
         }
     }
     
@@ -287,8 +288,9 @@ struct ContentView: View {
         return sortedTags
     }
     
-    func scaleIngredients(_ ingredients: [String], _ scaleFactor: Int = 1) -> [String] {
+    func scaleIngredients(_ recipe: String, _ scaleFactor: Int = 1) -> [String] {
         var scaledIngredients: [String] = []
+        let ingredients = extractIngredients(recipe)
         for ingredient in ingredients {
             let scaledSingleIngredient = scaleSingleIngredient(ingredient, scaleFactor)
             scaledIngredients.append(scaledSingleIngredient)
@@ -328,8 +330,9 @@ struct ContentView: View {
     }
     
     // Given a number of servings, update the ingredients list to display in the app
-    func updateDisplayForNumServings(_ numServings: Int) {
-        ingredients = scaleIngredients(ingredients, numServings)
+    func updateDisplayForNumServings(_ cocktail: String, _ numServings: Int) {
+        let recipe = extractSingleRecipe(recipes, cocktail)
+        ingredients = scaleIngredients(recipe, numServings)
     }
 }
 
