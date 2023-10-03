@@ -19,10 +19,11 @@ struct ContentView: View {
     @State private var selectedCocktail: String = ""
     @State private var selectedTag: String = ""
     @State private var selectedPotentialCocktail: String = ""
+    @State private var numServings = 1
     @State private var cocktailName: String = ""
     @State private var ingredients: [String] = []
     @State private var instructions: [String] = []
-    @State private var scalable: Bool = false
+    @State private var isScalable: Bool = false
     
     let liquorsList = ["Gin", "Prosecco", "Rum", "Tequila", "Vodka", "Whiskey"]
     
@@ -51,7 +52,8 @@ struct ContentView: View {
             .padding(.top, 20)
             
             Text("or")
-                .padding(.bottom, 6)
+                .padding(.top, -10)
+                .padding(.bottom, 2)
             
             // Descriptions picker
             HStack {
@@ -76,6 +78,19 @@ struct ContentView: View {
                             ForEach(cocktailTagsDict[selectedTag] ?? [], id: \.self) { cocktail in
                                 Text(cocktail)
                             }
+                        }
+                    }
+                }
+            }
+            
+            // Number of Servings picker
+            if isScalable {
+                HStack(spacing: -2) {
+                    Text("Number of servings")
+                    
+                    Picker("Servings", selection: $numServings) {
+                        ForEach(1...10, id: \.self) { number in
+                            Text("\(number)")
                         }
                     }
                 }
@@ -123,6 +138,9 @@ struct ContentView: View {
         }
         .onChange(of: selectedPotentialCocktail) { newSelectedCocktail in
             updateDisplayForSelectedCocktail(newSelectedCocktail)
+        }
+        .onChange(of: numServings) { newNumServings in
+            updateDisplayForNumServings(newNumServings)
         }
     }
     
@@ -230,6 +248,12 @@ struct ContentView: View {
         return liquorsInRecipe
     }
     
+    // Return a boolean indicating whether a given recipe is scalable
+    func extractScalable(_ recipe: String) -> Bool {
+        let scalable = (extractRecipeSection(recipe, "scalable:") as NSString).boolValue
+        return scalable
+    }
+    
     // Build a cocktails dictionary (tag: [cocktails list]) given a list of cocktail recipes
     func buildTagsDict(_ recipes: [String]) -> [String: [String]] {
         var tagsDict: [String: [String]] = [:]
@@ -263,12 +287,49 @@ struct ContentView: View {
         return sortedTags
     }
     
+    func scaleIngredients(_ ingredients: [String], _ scaleFactor: Int = 1) -> [String] {
+        var scaledIngredients: [String] = []
+        for ingredient in ingredients {
+            let scaledSingleIngredient = scaleSingleIngredient(ingredient, scaleFactor)
+            scaledIngredients.append(scaledSingleIngredient)
+        }
+        return scaledIngredients
+    }
+    
+    func scaleSingleIngredient(_ ingredient: String, _ scaleFactor: Int) -> String {
+        var scaledIngredient = ingredient
+        let splitIngredient = ingredient.split(maxSplits: 1, omittingEmptySubsequences: false) { $0 == " " }
+        
+        if splitIngredient.count == 2 {
+            if let qtyStr = splitIngredient.first, let remainingStr = splitIngredient.last, let qtyNum = Float(qtyStr) {
+                let scaledQty = qtyNum * Float(scaleFactor)
+                var formattedScaledQty = String(scaledQty)
+                if scaledQty == Float(Int(scaledQty)) {
+                    formattedScaledQty = String(Int(scaledQty))
+                }
+                scaledIngredient = "\(formattedScaledQty) \(remainingStr)"
+            } else {
+                print("First component of ingredients couldn't be converted to Float, or components were otherwise invalid")
+            }
+        } else {
+            print("Ingredient string was not split into exactly 2 components")
+        }
+        
+        return (scaledIngredient)
+    }
+    
     // Given a cocktail, update the necessary variables to display the new cocktail recipe in the app
     func updateDisplayForSelectedCocktail(_ cocktail: String) {
         let recipe = extractSingleRecipe(recipes, cocktail)
         cocktailName = extractCocktailName(recipe)
         ingredients = extractIngredients(recipe)
         instructions = extractInstructions(recipe)
+        isScalable = extractScalable(recipe)
+    }
+    
+    // Given a number of servings, update the ingredients list to display in the app
+    func updateDisplayForNumServings(_ numServings: Int) {
+        ingredients = scaleIngredients(ingredients, numServings)
     }
 }
 

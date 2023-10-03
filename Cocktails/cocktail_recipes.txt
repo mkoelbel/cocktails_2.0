@@ -51,7 +51,7 @@ Mojito
 ingredients:
 2 oz white rum
 1 oz lime juice
-1/2 oz simple syrup
+0.5 oz simple syrup
 5 mint leaves
 club soda
 
